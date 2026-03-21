@@ -1,0 +1,415 @@
+/* 1. RESET & FOUNDATION */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    background: #0d0d0d;
+    font-family: 'Public Sans', sans-serif;
+    padding: 20px 10px;
+    color: #fff;
+}
+
+.main-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 1100px;
+}
+
+/* 2. DYNAMIC GRID (SIDE-BY-SIDE SPREAD) */
+.cards-grid {
+    display: flex;
+    flex-wrap: wrap;
+    /* Stacks cards on mobile */
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+}
+
+/* 3. CARD ARCHITECTURE */
+.card-face {
+    flex: 1 1 480px;
+    /* Allows growth but caps at 480px */
+    max-width: 480px;
+    aspect-ratio: 1.58 / 1;
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    /* Prevent any leftover flip rotation */
+    transform: none !important;
+    backface-visibility: visible !important;
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.5) 100%);
+    z-index: 1;
+}
+
+.card-content {
+    position: relative;
+    z-index: 2;
+    padding: 6% 7%;
+    /* Use percentages for internal spacing */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* 4. FRONT UI: LOGO & TITLE */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.elite-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #d4af37;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* FIX: Reduced VIP Logo size and contained it */
+.vip-logo {
+    width: 18%;
+    /* Scalable width */
+    max-width: 70px;
+}
+
+.responsive-logo {
+    width: 100%;
+    height: auto;
+    opacity: 0.7;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+/* FIX: Chip Positioning */
+.card-chip {
+    width: 12%;
+    min-width: 40px;
+    max-width: 55px;
+    position: absolute;
+    top: 35%;
+    /* Fixed vertical position */
+    left: 8%;
+}
+
+.chip-img {
+    width: 100%;
+    height: auto;
+}
+
+/* FIX: Card Number (No longer pushed down) */
+.card-body {
+    margin-top: 15%;
+    /* Relative margin based on card height */
+}
+
+.card-number {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.1rem, 5vw, 1.6rem);
+    /* Scales with screen size */
+    letter-spacing: 2.5px;
+    color: #fff;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* 5. FRONT UI: FOOTER */
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.info-block {
+    display: flex;
+    flex-direction: column;
+}
+
+.celeb-badge {
+    font-size: clamp(8px, 2vw, 10px);
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.label {
+    font-size: clamp(7px, 1.5vw, 9px);
+    color: #d4af37;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.value {
+    font-size: clamp(11px, 3vw, 14px);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* 6. BACK UI: SECURITY & SIGNATURE */
+.back-layout {
+    padding: 0 !important;
+}
+
+.mag-stripe {
+    width: 100%;
+    height: 15%;
+    background: #111;
+    margin-top: 10%;
+}
+
+.security-area {
+    padding: 5% 8%;
+}
+
+/* High Resolution Signature Panel for Capture */
+.signature-panel {
+    width: 85%;
+    height: 35px;
+    background: repeating-linear-gradient(45deg,
+            #f9f9f9,
+            #f9f9f9 8px,
+            #e0e0e0 8px,
+            #e0e0e0 16px);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sig-text {
+    color: #777;
+    font-size: 8px;
+    font-style: italic;
+    font-family: 'Public Sans', sans-serif;
+}
+
+.disclaimer {
+    font-size: clamp(6px, 1.2vw, 8px);
+    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+}
+
+/* 7. BACK UI: BARCODE & LOGS */
+.back-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 8% 6%;
+}
+
+.barcode-white-box {
+    background: #fff;
+    padding: 4px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.responsive-barcode {
+    width: 80px;
+    height: 25px;
+}
+
+.barcode-number {
+    display: block;
+    color: #000;
+    font-size: 8px;
+    font-weight: 900;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.legal-info {
+    text-align: right;
+    font-size: 8px;
+    color: #d4af37;
+}
+
+.secure-tag {
+    display: block;
+    font-weight: 900;
+    font-size: 7px;
+}
+
+/* 8. ADMIN FORM RESPONSIVENESS */
+.admin-controls {
+    width: 100%;
+    max-width: 600px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 25px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+}
+
+.admin-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid #444;
+    color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.admin-input:focus {
+    border-color: #d4af37;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* 9. THEME SELECTOR BUTTONS */
+.theme-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0 25px;
+}
+
+.theme-btn {
+    padding: 8px 15px;
+    background: #222;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: 0.2s;
+}
+
+.theme-btn.active {
+    background: #d4af37;
+    color: #000;
+    border-color: #d4af37;
+}
+
+/* 10. STATUS TOGGLE */
+.status-control {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.switch {
+    position: relative;
+    width: 44px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #444;
+    transition: 0.4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    transition: 0.4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background: #2ecc71;
+}
+
+input:checked+.slider:before {
+    transform: translateX(22px);
+}
+
+
+.signature-panel-image {
+    width: 90%;
+    height: 38px;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.sig-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sig-text {
+    position: relative;
+    z-index: 2;
+    color: #666;
+    font-size: 10px;
+    font-style: italic;
+    font-weight: 600;
+    padding-left: 15px;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.barcode-white-box {
+    background: #fff;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+#qrcode img {
+    display: block;
+    /* Ensure the generated image fits our design */
+    width: 80px;
+    height: 80px;
+}
+
+.barcode-number {
+    color: #000;
+    font-size: 7px;
+    font-weight: 900;
+    font-family: 'Public Sans', sans-serif;
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrity Profile | Star-Elite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="profile.css">
+    <link rel="stylesheet" href="request.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../config.js"></script>
+    <script type="module" src="profile.js"></script>
+    <script type="module" src="../website.js"></script>
+    <script type="module">
+        // Call the check immediately
+        window.checkSiteVisibility();
+    </script>
+</head>
+
+<body>
+    <header class="profile-nav">
+        <div class="container nav-wrapper">
+            <div class="nav-left">
+                <a href="../index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
+                <div class="brand-mini">
+                    <div class="logo">CN</div>
+                    <span class="brand-name">Star-Elite</span>
+                </div>
+            </div>
+
+            <div class="nav-right" id="authSection"></div>
+        </div>
+    </header>
+
+    <main id="profileContent">
+        <div class="loader-container" id="loader">
+            <div class="spinner"></div>
+            <p>Fetching Celebrity Data...</p>
+        </div>
+
+        <div id="renderArea" style="display: none;">
+            <section class="celeb-hero">
+                <div class="hero-bg" id="heroBg"></div>
+                <div class="container">
+                    <div class="celeb-header">
+                        <div class="celeb-img-wrapper">
+                            <img id="celebImg" src="" alt="Celebrity">
+                        </div>
+                        <div class="celeb-meta">
+                            <h1 id="celebName"></h1>
+                            <div class="tags" id="celebTags">
+                                <span>Global Talent</span>
+                                <span>Verified</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="celeb-body container">
+                <div class="bio-card">
+                    <h3>Biography</h3>
+                    <p id="celebBio"></p>
+                </div>
+
+                <div class="action-sidebar">
+                    <div class="action-card booking">
+                        <i class="fa-solid fa-calendar-check icon"></i>
+                        <h4>Book for an Event</h4>
+                        <p>Request a quote for private appearances or performances.</p>
+                        <button class="btn-action gold">Inquiry Booking</button>
+                    </div>
+
+                    <div class="action-card meet">
+                        <i class="fa-solid fa-handshake icon"></i>
+                        <h4>Meet & Greet</h4>
+                        <p>Apply for an exclusive backstage experience or group session.</p>
+                        <button class="btn-action">Apply Now</button>
+                    </div>
+
+                    <div class="action-card membership">
+                        <i class="fa-solid fa-id-card icon"></i>
+                        <h4>Fan Membership</h4>
+                        <p>Join the official fan club for priority access and rewards.</p>
+                        <button class="btn-action silver">Get Member Card</button>
+                    </div>
+
+                    <div class="action-card support">
+                        <i class="fa-solid fa-heart icon"></i>
+                        <h4>Support Celebrity</h4>
+                        <p>Show your appreciation with a direct donation or gift.</p>
+                        <div class="support-input">
+                            <span>$</span>
+                            <input type="number" placeholder="25.00" id="supportAmount">
+                        </div>
+                        <button class="btn-action">Send Support</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="//code.jivosite.com/widget/f5FQlPdVJh" async></script>
+
+</body>
+
+
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard | Star-Elite</title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="dash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script src="../config.js"></script>
+    <script type="module" src="dash.js"></script>
+
+
+</head>
+
+<body class="dash-body">
+
+    <aside class="desktop-sidebar">
+        <div class="sidebar-content">
+            <div class="brand">
+                <div class="logo">CN</div>
+                <span>Star-Elite</span>
+            </div>
+            <nav class="side-menu">
+                <a href="#" class="nav-item active" data-tab="bookings"><i class="fa-solid fa-calendar"></i> Events</a>
+                <a href="#" class="nav-item" data-tab="meet_greets"><i class="fa-solid fa-handshake"></i> Meetups</a>
+                <a href="#" class="nav-item" data-tab="memberships"><i class="fa-solid fa-id-badge"></i> Clubs</a>
+                <a href="#" class="nav-item" data-tab="celebrity_support"><i class="fa-solid fa-heart"></i> Support</a>
+                <hr class="divider">
+                <button id="editProfileBtn" class="nav-item btn-link"><i class="fa-solid fa-user-pen"></i> Edit
+                    Profile</button>
+                <button id="logoutBtn" class="nav-item logout"><i class="fa-solid fa-right-from-bracket"></i>
+                    Logout</button>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="main-viewport">
+        <div class="content-wrapper">
+            <header class="page-header">
+                <div class="greeting">
+                    <h1 id="userName">Hello...</h1>
+                    <div class="sub-info">
+                        <span id="userSub">Manage your celebrity interactions</span>
+                        <span id="userCountry" class="country-tag"></span>
+                    </div>
+                </div>
+                <div class="header-action-mobile">
+                    <button id="logoutBtnMobile" class="icon-btn"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </header>
+
+            <section class="stats-row">
+                <div class="stat-pill">
+                    <span class="val" id="countBookings">0</span>
+                    <span class="lab">Bookings</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="val" id="countMeetups">0</span>
+                    <span class="lab">Meetups</span>
+                </div>
+                <div class="stat-pill highlight">
+                    <span class="val" id="countSupport">$0</span>
+                    <span class="lab">Invested</span>
+                </div>
+            </section>
+
+            <section class="data-section">
+                <div class="section-head">
+                    <h2 id="currentTabTitle">Event Bookings</h2>
+                </div>
+                <div class="table-card">
+                    <div id="tableResponse" class="responsive-table">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <nav class="mobile-nav">
+        <button class="m-nav-item active" data-tab="bookings"><i
+                class="fa-solid fa-calendar"></i><span>Events</span></button>
+        <button class="m-nav-item" data-tab="meet_greets"><i
+                class="fa-solid fa-handshake"></i><span>Meetups</span></button>
+        <button class="m-nav-item" data-tab="memberships"><i
+                class="fa-solid fa-id-badge"></i><span>Clubs</span></button>
+        <button class="m-nav-item" id="editProfileBtnMobile"><i
+                class="fa-solid fa-user"></i><span>Profile</span></button>
+    </nav>
+
+    <script src="//code.jivosite.com/widget/f5FQlPdVJh" async></script>
+
+</body>
+
+</html>

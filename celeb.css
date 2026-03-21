@@ -1,0 +1,145 @@
+/* --- Variables & Core Layout --- */
+:root {
+    --card-bg: #0f0f10;
+    --transition-smooth: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#featured .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    /* Responsive grid */
+    gap: 30px;
+    padding: 20px 0;
+}
+
+/* --- Premium Celebrity Card --- */
+#featured .card {
+    background: var(--card-bg);
+    /* */
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--glass);
+    transition: var(--transition-smooth);
+    /* */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    /* Indicates interactivity for navigation */
+}
+
+/* Hover Effects */
+#featured .card:hover {
+    transform: translateY(-10px);
+    /* */
+    border-color: var(--accent);
+    box-shadow: 0 15px 30px rgba(212, 175, 55, 0.15);
+    /* */
+}
+
+#featured .card:active {
+    transform: scale(0.98);
+    /* Tactile feedback for clicks */
+}
+
+/* --- Media Section --- */
+.media-container {
+    position: relative;
+    height: 320px;
+    /* */
+    overflow: hidden;
+}
+
+/* View Profile Overlay Hint */
+.media-container::after {
+    content: 'View Profile';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent);
+    color: #000;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    /* */
+}
+
+.card:hover .media-container::after {
+    opacity: 1;
+    /* */
+}
+
+.media {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.6s ease;
+    /* */
+}
+
+.card:hover .media {
+    transform: scale(1.1);
+    /* Zoom effect */
+}
+
+/* --- Content Section --- */
+.info {
+    padding: 24px;
+    /* */
+    background: linear-gradient(180deg, transparent 0%, var(--card-bg) 20%);
+}
+
+.role-tag {
+    display: inline-block;
+    background: rgba(212, 175, 55, 0.1);
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    /* */
+}
+
+.name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+    /* */
+}
+
+.bio {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+    /* */
+}
+
+/* --- Search & Interaction Section --- */
+.search-container {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    background: linear-gradient(180deg, rgba(212, 175, 55, 0.05) 0%, transparent 100%);
+    border-radius: 24px;
+    /* */
+}
+
+.search-hint {
+    margin-top: 16px;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+    /* */
+}

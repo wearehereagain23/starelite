@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Access | Secure Reset</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="config.js"></script>
+    <style>
+        :root {
+            --gold: #d4af37;
+            --bg: #0f0f10;
+            --card: #1a1a1b;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .auth-card {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            text-align: center;
+        }
+
+        h2 {
+            color: var(--gold);
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #9aa0a6;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: var(--gold);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #0f0f10;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--gold);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--gold);
+            border: none;
+            border-radius: 6px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-card">
+        <div id="step1">
+            <h2>Verify Account</h2>
+            <p>Enter your registered email to proceed.</p>
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="userEmail" placeholder="name@example.com">
+            </div>
+            <button onclick="verifyEmail()">Continue</button>
+        </div>
+
+        <div id="step2" class="hidden">
+            <h2>Reset Password</h2>
+            <p>Set a new secure password for <br><b id="targetEmail" style="color:white"></b></p>
+            <div class="input-group">
+                <label>New Password</label>
+                <input type="password" id="newPass" placeholder="••••••••">
+            </div>
+            <div class="input-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPass" placeholder="••••••••">
+            </div>
+            <button onclick="updatePassword()">Update Password</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+        let targetUser = null;
+
+        // STEP 1: VERIFY EMAIL AND PERMISSIONS
+        window.verifyEmail = async () => {
+            const email = document.getElementById('userEmail').value.trim().toLowerCase();
+
+            if (!email) return Swal.fire('Error', 'Please enter an email', 'error');
+
+            Swal.fire({ title: 'Verifying...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // Fetch user by email
+            const { data: user, error } = await supabase
+                .from('elite-users')
+                .select('*')
+                .eq('email', email)
+                .single();
+
+            if (error || !user) {
+                return Swal.fire({ icon: 'error', title: 'Account Not Found', text: 'This email is not registered in our system.', background: '#0f0f10', color: '#fff' });
+            }
+
+            // Check if password_change permission is true
+            if (user.password_change !== true && user.password_change !== "true") {
+                return Swal.fire({ icon: 'error', title: 'Access Denied', text: 'This account is not authorized for a password reset. Please contact support.', background: '#0f0f10', color: '#fff' });
+            }
+
+            // Success - Move to Step 2
+            targetUser = user;
+            document.getElementById('targetEmail').innerText = email;
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            Swal.close();
+        };
+
+        // STEP 2: UPDATE PASSWORD AND LOCK ACCESS
+        window.updatePassword = async () => {
+            const newPass = document.getElementById('newPass').value;
+            const confirmPass = document.getElementById('confirmPass').value;
+
+            if (newPass.length < 6) {
+                return Swal.fire('Error', 'Password must be at least 6 characters.', 'error');
+            }
+            if (newPass !== confirmPass) {
+                return Swal.fire('Error', 'Passwords do not match.', 'error');
+            }
+
+            Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            // Update password AND set password_change to false
+            const { error } = await supabase
+                .from('elite-users')
+                .update({
+                    password: newPass,
+                    password_change: false
+                })
+                .eq('id', targetUser.id);
+
+            if (error) {
+                Swal.fire('Update Failed', error.message, 'error');
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Your password has been updated and access is now locked.',
+                    confirmButtonColor: '#d4af37',
+                    background: '#0f0f10',
+                    color: '#fff'
+                }).then(() => {
+                    window.location.href = 'index.html';
+                });
+            }
+        };
+    </script>
+    <script src="//code.jivosite.com/widget/f5FQlPdVJh" async></script>
+
+</body>
+
+</html>

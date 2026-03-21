@@ -1,0 +1,65 @@
+/* news.css */
+#buzz .carousel {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 20px 0;
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+    will-change: transform;
+}
+
+.news-card {
+    min-width: 100%;
+    /* Shows one major headline at a time */
+    padding: 40px;
+    background: var(--card);
+    border: 1px solid var(--glass);
+    border-radius: 24px;
+    position: relative;
+}
+
+.news-tag {
+    display: inline-block;
+    background: #e74c3c;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.news-card h4 {
+    font-size: 2rem;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    color: #fff;
+}
+
+.news-card .meta {
+    font-size: 1.1rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+}
+
+.news-card .source {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .news-card h4 {
+        font-size: 1.5rem;
+    }
+
+    .news-card {
+        padding: 25px;
+    }
+}

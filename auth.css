@@ -1,0 +1,64 @@
+/* auth.css */
+.swal-advanced-popup {
+    border-radius: 28px !important;
+    border: 1px solid rgba(212, 175, 55, 0.2) !important;
+    padding: 2rem !important;
+    background: linear-gradient(145deg, #0f0f10 0%, #050506 100%) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7) !important;
+}
+
+.swal-advanced-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800 !important;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+    color: #fff !important;
+    font-size: 1.8rem !important;
+}
+
+.auth-field-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.auth-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    padding: 14px 20px !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    transition: all 0.3s ease;
+    margin: 10px 0 !important;
+}
+
+.auth-input:focus {
+    border-color: var(--accent) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1) !important;
+    outline: none;
+}
+
+.swal-confirm-btn {
+    width: 100% !important;
+    padding: 14px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    background: var(--accent) !important;
+    color: #000 !important;
+    margin-top: 10px !important;
+}
+
+.auth-link {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.auth-link:hover {
+    opacity: 0.8;
+}

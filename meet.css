@@ -1,0 +1,84 @@
+/* meet.css */
+#meet .meetlist {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.package {
+    background: var(--card);
+    border: 1px solid var(--glass);
+    border-radius: 20px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Premium Hover Animation */
+.package:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Subtle background glow on hover */
+.package::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+.package:hover::before {
+    opacity: 1;
+}
+
+.package h3 {
+    font-size: 1.8rem;
+    color: #fff;
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.package .meta {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+    line-height: 1.4;
+}
+
+.package .bio {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 30px;
+    flex-grow: 1;
+}
+
+/* Button Styling */
+.meet-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .package {
+        padding: 30px;
+    }
+}

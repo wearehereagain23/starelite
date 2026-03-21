@@ -1,0 +1,121 @@
+/* cards.css */
+.membership-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 40px;
+    padding: 40px 0;
+    perspective: 1000px;
+}
+
+.membership-card {
+    position: relative;
+    height: 450px;
+    border-radius: 24px;
+    padding: 30px;
+    overflow: hidden;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.card-glass {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(12px);
+    z-index: 1;
+}
+
+.card-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-chip {
+    width: 50px;
+    height: 40px;
+    background: linear-gradient(135deg, #e0e0e0 0%, #a0a0a0 100%);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.card-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 30px;
+}
+
+.benefits-list {
+    list-style: none;
+    padding: 0;
+    flex-grow: 1;
+}
+
+.benefits-list li {
+    margin-bottom: 12px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+.benefits-list li::before {
+    content: "✦";
+    margin-right: 10px;
+    color: var(--accent);
+}
+
+/* Tier Specific Colors */
+.silver {
+    background: linear-gradient(135deg, #2c3e50, #000);
+}
+
+.silver .card-title {
+    color: #bdc3c7;
+}
+
+.gold {
+    background: linear-gradient(135deg, #b8860b, #000);
+}
+
+.gold .card-title {
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.vip {
+    background: linear-gradient(135deg, #4a00e0, #8e2de2, #000);
+}
+
+.vip .card-title {
+    color: #fff;
+    text-shadow: 0 0 15px rgba(142, 45, 226, 0.5);
+}
+
+/* Hover Effects */
+.membership-card:hover {
+    transform: translateY(-15px) rotateX(5deg) rotateY(-5deg);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn.ghost-white {
+    border: 1px solid #fff;
+    color: #fff;
+}
+
+.btn.gold-btn {
+    background: #ffd700;
+    color: #000;
+}
+
+.btn.vip-btn {
+    background: #fff;
+    color: #4a00e0;
+    font-weight: 800;
+}

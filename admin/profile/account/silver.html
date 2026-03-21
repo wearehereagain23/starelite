@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silver VIP Card Editor</title>
+    <link rel="stylesheet" href="./silver.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <div class="card-container">
+            <div class="membership-card" id="vipCard">
+                <div class="holographic-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <div class="brand-section">
+                            <h2 class="elite-title">SILVER ELITE</h2>
+                            <div class="celeb-badge">OFFICIAL FAN: <b id="displayCeleb">LOADING...</b></div>
+                        </div>
+                        <div class="vip-logo">
+                            <img src="./sliver-vip.png" alt="VIP" class="responsive-logo">
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="card-number" id="displayCardNum">0000 0000 0000 0000</div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="user-info">
+                            <div class="info-block">
+                                <span class="label">MEMBER NAME</span>
+                                <span class="value" id="displayName">LOADING...</span>
+                            </div>
+                            <div class="info-block">
+                                <span class="label">EXPIRING DATE</span>
+                                <span class="value" id="displayExpiry">00 / 0000</span>
+                            </div>
+                        </div>
+
+                        <div class="barcode-section">
+                            <img src="./barcode.png" alt="Barcode" class="responsive-barcode">
+                            <span class="barcode-number" id="displayBarcode">00000000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="admin-controls">
+            <h3>Background Texture</h3>
+            <div class="theme-selector">
+                <button class="theme-btn active" onclick="changeBg('./silver1.jpg', this)">Texture 1</button>
+                <button class="theme-btn" onclick="changeBg('./silver2.jpg', this)">Texture 2</button>
+                <button class="theme-btn" onclick="changeBg('./silver3.png', this)">Texture 3</button>
+            </div>
+
+            <div class="admin-form">
+                <div class="form-header">
+                    <i class="fa-solid fa-gears"></i>
+                    <h3>Edit Card Details</h3>
+                </div>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label class="label"><i class="fa-solid fa-hashtag"></i> Card Number</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="inputCardNum" class="admin-input" placeholder="0000 0000 0000 0000">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label"><i class="fa-solid fa-calendar-days"></i> Expiry Date</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="inputExpiry" class="admin-input" placeholder="MM / YYYY">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label class="label"><i class="fa-solid fa-comment-dots"></i> Admin Comment</label>
+                    <div class="input-wrapper">
+                        <textarea id="inputComment" class="admin-input" rows="2" placeholder="Card is valid"></textarea>
+                    </div>
+                </div>
+
+                <div class="status-control">
+                    <div class="status-info">
+                        <label class="label">Card Active Status</label>
+                        <span class="status-desc" id="statusText">Loading Status...</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="inputStatus" onchange="updateStatusUI(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <script>
+                    // Helper for real-time UI feedback
+                    function updateStatusUI(isChecked) {
+                        const text = document.getElementById('statusText');
+                        text.innerText = isChecked ? 'Currently Active' : 'Deactivated';
+                        text.style.color = isChecked ? '#2ecc71' : '#e74c3c';
+                    }
+                </script>
+            </div>
+
+            <div id="saveBtnSection" style="margin-top: 25px;">
+                <button id="saveBtn" class="theme-btn" style="background: #27ae60; border-color: #2ecc71; width: 100%;"
+                    onclick="saveCardData()">
+                    <i class="fa-solid fa-floppy-disk"></i> Update & Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../../../config.js"></script>
+    <script type="module" src="./silver.js"></script>
+
+    <script type="module" src="../../../website.js"></script>
+    <script type="module">
+        // Call the check immediately
+        window.checkSiteVisibility();
+    </script>
+</body>
+
+</html>
