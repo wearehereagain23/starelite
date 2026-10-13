@@ -9,7 +9,7 @@ window.generateQRCode = (cardNumber) => {
     if (!qrContainer) return;
     qrContainer.innerHTML = "";
     const cleanNumber = cardNumber.toString().replace(/\s/g, '');
-    const verificationUrl = `https://star-elite.web.app/dash/index.html?rid=${cleanNumber}`;
+    const verificationUrl = `https://starelite-sable.vercel.app/dash/index.html?rid=${cleanNumber}`;
 
     new QRCode(qrContainer, {
         text: verificationUrl,
