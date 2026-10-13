@@ -1,6 +1,6 @@
 // /dash/request.js
 const API_REQUEST_BASE = 'https://celeb-address.vercel.app/api/requests';
-const FRONTEND_SIGNATURE = 'starelite'; // 🔑 Signature for multi-platform query filtering
+const FRONTEND_SIGNATURE = 'starelite';
 
 const swalTheme = {
     background: '#0f0f10',
