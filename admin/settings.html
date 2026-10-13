@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Core - Admin Settings</title>
+    <link rel="stylesheet" href="css/list.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="js/settings.js" defer></script>
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+</head>
+
+<body>
+
+    <div class="admin-app-layout">
+
+        <main class="workspace-viewport">
+
+            <div class="workspace-header">
+                <a href="list.html" class="utility-action-btn" title="Return to Dashboard"
+                    style="text-decoration: none; margin-right: 12px;">
+                    <i data-lucide="arrow-left"></i>
+                </a>
+                <div class="active-user-meta-summary">
+                    <div class="meta-title-stack">
+                        <h3>System Admin Configurations</h3>
+                        <p>Manage primary administrator credentials and membership card configurations</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="workspace-scrollable-body">
+                <div class="profile-dashboard-grid" style="display: flex; flex-direction: column; gap: 24px;">
+
+                    <!-- Administrator Credentials Form -->
+                    <div class="card"
+                        style="background-color: var(--bg-sidebar-dark); border: 1px solid var(--border-divider-line); border-radius: 12px; padding: 24px;">
+                        <h4 style="color: var(--text-primary-bright); margin-bottom: 16px; font-size: 18px;">
+                            Administrator Credentials Form</h4>
+
+                        <form id="adminSettingsForm" class="spa-form-grid">
+
+                            <div class="form-group-item">
+                                <label class="form-label">Current / New Email Address</label>
+                                <input type="email" id="adminEmail" class="form-control" placeholder="admin@domain.com"
+                                    required>
+                            </div>
+
+                            <div class="form-group-item">
+                                <label class="form-label">Physical Street Address</label>
+                                <input type="text" id="adminAddress" class="form-control"
+                                    placeholder="123 Corporate Ave" required>
+                            </div>
+
+                            <div class="form-group-item">
+                                <label class="form-label">Account Security Password</label>
+                                <input type="password" id="adminPassword" class="form-control"
+                                    style="font-family: monospace; color: #ffd279;" placeholder="••••••••" required>
+                            </div>
+
+                            <div style="margin-top: 16px;">
+                                <button type="submit" id="saveSettingsBtn" class="sidebar-logout-action-btn"
+                                    style="background-color: var(--text-chat-green); color: #ffffff; border: none; padding: 14px; font-size: 15px;">
+                                    <i data-lucide="shield-check"></i>
+                                    <span>Request OTP & Update Record</span>
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                    <!-- Membership Card Tiers Form -->
+                    <div class="card"
+                        style="background-color: var(--bg-sidebar-dark); border: 1px solid var(--border-divider-line); border-radius: 12px; padding: 24px;">
+                        <h4 style="color: var(--text-primary-bright); margin-bottom: 16px; font-size: 18px;">
+                            Membership Card Tier Configurations</h4>
+
+                        <form id="cardSettingsForm" class="spa-form-grid">
+
+                            <div class="form-group-item">
+                                <label class="form-label">Silver Tier Description</label>
+                                <textarea id="cardSilver" class="form-control" rows="2"
+                                    placeholder="Silver tier benefits description..."></textarea>
+                            </div>
+
+                            <div class="form-group-item">
+                                <label class="form-label">Gold Tier Description</label>
+                                <textarea id="cardGold" class="form-control" rows="2"
+                                    placeholder="Gold tier benefits description..."></textarea>
+                            </div>
+
+                            <div class="form-group-item">
+                                <label class="form-label">Platinum Tier Description</label>
+                                <textarea id="cardPlatinum" class="form-control" rows="2"
+                                    placeholder="Platinum tier benefits description..."></textarea>
+                            </div>
+
+                            <div style="margin-top: 16px;">
+                                <button type="submit" id="saveCardsBtn" class="sidebar-logout-action-btn"
+                                    style="background-color: #3b82f6; color: #ffffff; border: none; padding: 14px; font-size: 15px;">
+                                    <i data-lucide="save"></i>
+                                    <span>Update Card Tiers</span>
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

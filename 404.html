@@ -77,71 +77,39 @@
             }
         }
     </style>
-
-
-
 </head>
 
 <body>
     <div class="content">
         <h1>404</h1>
         <h2>Oops! We Are Offline</h2>
-        <p id="mees"></p>
-        <a href="404.html" class="btn">Refresh page</a>
+        <p id="mees">The website is currently undergoing maintenance or offline.</p>
+        <a href="404.html" class="btn" onclick="location.reload(); return false;">Refresh page</a>
     </div>
-    <script src="config.js"></script>
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-        // 1. Initialize Supabase
-        const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+    <script>
+        const API_WEB_BASE = 'https://celeb-address.vercel.app/api/web';
+        const FRONTEND_SIGNATURE = 'starelite';
 
-        /**
-         * REAL-TIME MONITOR
-         * Listens for the admin to turn the website visibility back to TRUE
-         */
-        function startVisibilityMonitor() {
-            supabase
-                .channel('site_status_monitor')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'UPDATE',
-                        schema: 'public',
-                        table: 'admin',
-                        filter: 'id=eq.2'
-                    },
-                    (payload) => {
-                        // If the admin sets visibility back to true, redirect home immediately
-                        if (payload.new.website_visibility === true) {
-                            window.location.href = 'index.html';
-                        }
-                    }
-                )
-                .subscribe();
-        }
+        async function checkVisibility() {
+            try {
+                const res = await fetch(`${API_WEB_BASE}/status?signature=${FRONTEND_SIGNATURE}`);
+                const data = await res.json();
 
-        /**
-         * DOUBLE CHECK ON LOAD
-         * Just in case the site was turned on while the user was navigating to this page
-         */
-        async function checkInitialStatus() {
-            const { data, error } = await supabase
-                .from('admin')
-                .select('website_visibility')
-                .eq('id', 2)
-                .single();
-
-            if (data && data.website_visibility === true) {
-                window.location.href = 'index.html';
-            } else {
-                // If still false, keep the monitor running
-                startVisibilityMonitor();
+                if (data.success && data.website_visibility === true) {
+                    // Admin turned site back on: auto return to index.html
+                    window.location.href = 'index.html';
+                }
+            } catch (err) {
+                console.error("Status check failed:", err);
             }
         }
 
-        // Run the check
-        checkInitialStatus();
+        // Check on load
+        checkVisibility();
+
+        // Poll every 5 seconds to automatically redirect home when site goes online
+        setInterval(checkVisibility, 50000);
     </script>
 </body>
 

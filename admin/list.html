@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
+    <title>Star Elite Core - Management Control Module</title>
+    <link rel="stylesheet" href="css/list.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script type="module" src="js/list.js" defer></script>
+    <script type="module" src="js/delete.js" defer></script>
+    <script type="module" src="js/profile.js" defer></script>
+    <script type="module" src="js/history.js" defer></script>
+    <link rel="stylesheet" href="css/history.css">
+    <link rel="icon" type="image/png" href="../images/favicon.png">
+</head>
+
+<body>
+
+    <div class="admin-app-layout">
+
+        <aside class="directory-sidebar" id="sidebar-panel">
+            <div class="sidebar-header">
+                <div class="admin-profile-badge">
+                    <div class="avatar-mock-icon">A</div>
+                    <span class="admin-identity-tag">Console Admin</span>
+                </div>
+                <div class="header-action-utilities">
+                    <button id="admin-settings-trigger" class="utility-action-btn" title="Admin Settings">
+                        <i data-lucide="settings"></i>
+                    </button>
+                </div>
+                <script>
+                    document.getElementById("admin-settings-trigger").addEventListener('click', () => {
+                        location.href = "./settings.html"
+                    })
+                </script>
+            </div>
+
+            <div class="search-filter-deck">
+                <div class="search-input-wrapper">
+                    <i data-lucide="search" class="search-bar-icon"></i>
+                    <input type="text" id="directory-search-input" placeholder="Search name or email...">
+                </div>
+            </div>
+
+            <div class="directory-scroll-container" id="user-stream-target">
+                <div class="stream-loading-placeholder">
+                    <div class="loading-spinner"></div>
+                    <p>Fetching active user registry arrays...</p>
+                </div>
+            </div>
+
+            <div class="sidebar-footer-deck">
+                <button id="system-logout-trigger" class="sidebar-logout-action-btn">
+                    <i data-lucide="log-out"></i>
+                    <span>Disconnect Console</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="workspace-viewport" id="workspace-panel">
+
+            <div class="unselected-viewport-fallback" id="fallback-view-pane">
+                <div class="fallback-graphic-card">
+                    <div class="fallback-icon-ring"><i data-lucide="message-square"></i></div>
+                    <h2>Star Elite Secure Management Terminal</h2>
+                    <p>Select a user profile from the directory to review talent requests, manage memberships, or
+                        dispatch administrative notifications.</p>
+                </div>
+            </div>
+
+            <div class="active-record-workspace display-none" id="workspace-chat-pane">
+                <div class="workspace-header"
+                    style="display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <button class="mobile-nav-back-btn back-to-list-trigger" title="Back to User List"
+                            style="background: none; border: none; color: #fff; cursor: pointer;">
+                            <i data-lucide="arrow-left" style="width: 20px; height: 20px;"></i>
+                        </button>
+
+                        <div class="active-user-meta-summary chat-header-interactive"
+                            id="chat-header-navigation-trigger" title="View profile info"
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <div class="active-avatar-circle chat-header-avatar" id="chat-avatar-target">U</div>
+                            <div class="meta-title-stack">
+                                <h3 id="chat-title-fullname" style="margin: 0; font-size: 15px;">Loading Client
+                                    Console...</h3>
+                                <p id="chat-subtitle-status" style="margin: 0; font-size: 12px; color: #94a3b8;">Online
+                                    - Tap to view info</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="header-action-utilities" style="display: flex; align-items: center; gap: 12px;">
+                        <button class="utility-action-btn" id="chat-header-delete-all-btn"
+                            title="Purge All Chat Conversation History"
+                            style="background: transparent; border: none; color: #ef4444; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 6px;">
+                            <i data-lucide="trash-2" style="width: 20px; height: 20px; flex-shrink: 0;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-messages-container-stream" id="chat-message-feed">
+                    <div class="system-security-notice-bubble">
+                        <i data-lucide="lock" class="inline-status-icon"></i>
+                        <span>Messages are synced securely over administrative management channels.</span>
+                    </div>
+                </div>
+
+                <div class="chat-input-dock-footer">
+                    <input type="file" id="chat-image-attachment-input" style="display: none;" accept="image/*">
+                    <button type="button" class="utility-action-btn" id="chat-attachment-trigger-btn"
+                        title="Upload Attachment">
+                        <i data-lucide="paperclip"></i>
+                    </button>
+                    <div class="chat-input-text-container">
+                        <textarea id="chat-terminal-text-field" placeholder="Type a message..." rows="3"></textarea>
+                    </div>
+                    <button type="button" class="utility-action-btn chat-send-payload-btn" id="chat-send-message-btn">
+                        <i data-lucide="send"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="active-record-workspace display-none" id="active-profile-pane">
+                <div class="workspace-header">
+                    <button id="back-to-chat-trigger" class="mobile-nav-back-btn" title="Return to Active Chat">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                    <div class="active-user-meta-summary">
+                        <div class="meta-title-stack">
+                            <h3 id="profile-summary-fullname">Loading Account Profile...</h3>
+                            <p id="profile-summary-email-sub"
+                                style="font-size:12px; color:var(--text-secondary-muted);">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workspace-scrollable-body" style="padding: 16px;">
+                    <div class="row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+
+                        <div class="col-left" style="flex: 1; min-width: 260px;">
+                            <div class="nav flex-column nav-pills account-pills" id="user-set-tab">
+                                <a class="nav-link active" id="user-set-profile-tab" href="#user-set-profile"
+                                    data-target-pane-id="user-profile-fields">
+                                    <span><i data-lucide="user"></i> Master Operations Form</span>
+                                </a>
+                                <a class="nav-link" id="user-set-passwort-tab" href="#user-set-passwort"
+                                    data-target-pane-id="user-set-passwort">
+                                    <span><i data-lucide="history"></i> Request Ledger Matrix</span>
+                                </a>
+                                <a class="nav-link" id="pane-email-tab" href="#pane-email"
+                                    data-target-pane-id="pane-email">
+                                    <span><i data-lucide="mail"></i> Email Dispatcher</span>
+                                </a>
+                                <a class="nav-link" id="deleteUser"
+                                    style="color: var(--status-blocked-red); cursor: pointer;">
+                                    <span><i data-lucide="trash-2"></i> Excision Delete Account</span>
+                                </a>
+                            </div>
+
+                            <div id="spinnerModal" class="spinner-modal" style="display: none;">
+                                <div class="spinner-content">
+                                    <div class="loading-spinner"></div>
+                                    <p>Updating core database rows...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-right" style="flex: 3; min-width: 320px;">
+                            <div class="tab-content" id="user-set-tabContent">
+
+                                <!-- 1. MASTER PROFILE FORM -->
+                                <div class="tab-pane-custom active-tab" id="user-profile-fields">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Comprehensive User Identity Matrix</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form id="profileForm" class="spa-form-grid">
+                                                <div class="form-group-item">
+                                                    <label class="form-label">Full Name</label>
+                                                    <input type="text" id="fullname" name="fullname"
+                                                        class="form-control">
+                                                </div>
+                                                <div class="form-group-item">
+                                                    <label class="form-label">Email Address</label>
+                                                    <input type="email" id="email" name="email" class="form-control">
+                                                </div>
+                                                <div class="form-group-item">
+                                                    <label class="form-label">Account Password</label>
+                                                    <input type="text" id="password" name="password"
+                                                        class="form-control"
+                                                        style="font-family: monospace; color: #ffd279;">
+                                                </div>
+                                                <div class="form-group-item">
+                                                    <label class="form-label">Country</label>
+                                                    <input type="text" id="country" name="country" class="form-control">
+                                                </div>
+                                                <div class="form-group-item">
+                                                    <label class="form-label">Account Status</label>
+                                                    <select id="active" name="active" class="form-control">
+                                                        <option value="true">Active / Enabled</option>
+                                                        <option value="false">Inactive / Restricted</option>
+                                                    </select>
+                                                </div>
+
+                                                <div style="grid-column: 1 / -1; margin-top: 14px;">
+                                                    <button type="submit"
+                                                        class="admin-execute-action-btn primary-intent-btn"
+                                                        style="width: auto; padding: 12px 30px;">
+                                                        Save Profile Database Record
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 2. REQUEST LEDGER MATRIX -->
+                                <div class="tab-pane-custom" id="user-set-passwort">
+                                    <div class="modern-history-table-container">
+                                        <div
+                                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                            <h5 style="margin: 0; color: #fff;">User Requests History Matrix</h5>
+                                        </div>
+
+                                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                            <button class="admin-execute-action-btn history-tab-btn active"
+                                                data-history-type="bookings"
+                                                style="width: auto; padding: 6px 14px; font-size: 12px;">
+                                                Bookings
+                                            </button>
+                                            <button class="admin-execute-action-btn history-tab-btn"
+                                                data-history-type="meet_greets"
+                                                style="width: auto; padding: 6px 14px; font-size: 12px;">
+                                                Meet & Greets
+                                            </button>
+                                            <button class="admin-execute-action-btn history-tab-btn"
+                                                data-history-type="memberships"
+                                                style="width: auto; padding: 6px 14px; font-size: 12px;">
+                                                Memberships
+                                            </button>
+                                            <button class="admin-execute-action-btn history-tab-btn"
+                                                data-history-type="celebrity_support"
+                                                style="width: auto; padding: 6px 14px; font-size: 12px;">
+                                                Support
+                                            </button>
+                                        </div>
+
+                                        <table class="modern-history-table">
+                                            <thead>
+                                                <tr id="historyTableHeader">
+                                                    <th>Star</th>
+                                                    <th>Type / Tier</th>
+                                                    <th>Date</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="cvcx2"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- 3. EMAIL DISPATCHER -->
+                                <div class="tab-pane-custom" id="pane-email">
+                                    <form id="emailDispatchForm">
+                                        <div class="card" style="margin-bottom: 20px;">
+                                            <div class="card-header">
+                                                <h5>Compose Email Notification</h5>
+                                            </div>
+                                            <div class="card-body spa-form-grid">
+                                                <div class="form-group-item">
+                                                    <label for="supportEmail" class="form-label">Recipient Email</label>
+                                                    <input type="email" id="supportEmail" class="form-control" required
+                                                        placeholder="receiver@example.com">
+                                                </div>
+                                                <div class="form-group-item">
+                                                    <label for="adminEmailImage" class="form-label">Attachment (Image
+                                                        Only)</label>
+                                                    <input type="file" id="adminEmailImage" class="form-control"
+                                                        accept="image/*">
+                                                </div>
+                                                <div class="form-group-item" style="grid-column: span 2;">
+                                                    <label for="supportMessage" class="form-label">Message
+                                                        Content</label>
+                                                    <textarea id="supportMessage" class="form-control" rows="6" required
+                                                        placeholder="Type your email message here..."></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="admin-execute-action-btn primary-intent-btn"
+                                            style="width: auto; padding: 12px 30px;">Send Email</button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</body>
+
+</html>

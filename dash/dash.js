@@ -1,75 +1,73 @@
 // /dash/dash.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
-const SESSION_KEY = 'Star-Elite_user_active';
+const API_DASH_BASE = 'https://celeb-address.vercel.app/api/dash';
+const API_AUTH_BASE = 'https://celeb-address.vercel.app/api/auth';
+const SESSION_KEY = 'star-elite_user_active';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    if (window.checkSiteAndAccountStatus) {
-        await window.checkSiteAndAccountStatus();
-    }
+    const sessionData = localStorage.getItem(SESSION_KEY);
+    const session = sessionData ? JSON.parse(sessionData) : null;
+    const activeUserId = session?.userId || session?.id || session?.user?.id || session?.user_id;
+    const isLoggedIn = session && (session.loggedIn || session.active || session.token || activeUserId);
 
     const urlParams = new URLSearchParams(window.location.search);
     const sharedRid = urlParams.get('rid');
 
-    const sessionData = localStorage.getItem(SESSION_KEY);
-    const session = sessionData ? JSON.parse(sessionData) : null;
-    const isLoggedIn = session && session.loggedIn && session.userId;
-
-    // GUARD: No redirect, but force login popup if session is missing
-    if (!isLoggedIn) {
+    if (!isLoggedIn || !activeUserId) {
         handleScanAuth(sharedRid);
         return;
     }
 
-    await initDashboard(session.userId);
+    try {
+        if (window.checkSiteAndAccountStatus) {
+            await window.checkSiteAndAccountStatus();
+        }
+    } catch (statusErr) {
+        console.error("Account status check failed:", statusErr);
+    }
+
+    await initDashboard(activeUserId);
     setupTabs();
 
     if (sharedRid) {
-        verifyAndShowScanCard(sharedRid, session.userId);
+        verifyAndShowScanCard(sharedRid, activeUserId);
     }
 });
 
-/**
- * FIXED: handleScanAuth
- * Validates form existence before calling .toLowerCase()
- */
 async function handleScanAuth(rid) {
     const { value: form } = await Swal.fire({
         title: 'Authentication Required',
         text: 'Please login to access your dashboard.',
         background: '#0f0f10',
         color: '#fff',
-        // Set a base width that works for desktop, but limited by 95% for mobile
         width: '450px',
         padding: '2rem 1rem',
         html: `
-    <div style="display: flex; flex-direction: column; gap: 5px; width: 100%; box-sizing: border-box;">
-        <div style="text-align: left; margin-bottom: 5px; color: #9aa0a6; font-size: 13px; padding-left: 5px;">Email Address</div>
-        <input id="sw-email" class="swal2-input" placeholder="e.g. name@mail.com" 
-            style="background:#1a1a1b; color:white; width: 100%; margin: 0 0 15px 0; border: 1px solid #333; box-sizing: border-box; font-size: 15px;">
-        
-        <div style="text-align: left; margin-bottom: 5px; color: #9aa0a6; font-size: 13px; padding-left: 5px;">Password</div>
-        <input id="sw-pass" type="password" class="swal2-input" placeholder="••••••••" 
-            style="background:#1a1a1b; color:white; width: 100%; margin: 0 0 10px 0; border: 1px solid #333; box-sizing: border-box; font-size: 15px;">
-        
-        <div style="text-align: right; margin-top: 5px;">
-            <a href="../authin.html" style="color: #d4af37; text-decoration: none; font-size: 12px; font-weight: bold;">Forgot Password?</a>
-        </div>
-    </div>
-`,
+            <div style="display: flex; flex-direction: column; gap: 5px; width: 100%; box-sizing: border-box;">
+                <div style="text-align: left; margin-bottom: 5px; color: #9aa0a6; font-size: 13px; padding-left: 5px;">Email Address</div>
+                <input id="sw-email" class="swal2-input" placeholder="e.g. name@mail.com" 
+                    style="background:#1a1a1b; color:white; width: 100%; margin: 0 0 15px 0; border: 1px solid #333; box-sizing: border-box; font-size: 15px;">
+                
+                <div style="text-align: left; margin-bottom: 5px; color: #9aa0a6; font-size: 13px; padding-left: 5px;">Password</div>
+                <input id="sw-pass" type="password" class="swal2-input" placeholder="••••••••" 
+                    style="background:#1a1a1b; color:white; width: 100%; margin: 0 0 10px 0; border: 1px solid #333; box-sizing: border-box; font-size: 15px;">
+                
+                <div style="text-align: right; margin-top: 5px;">
+                    <a href="../authin.html" style="color: #d4af37; text-decoration: none; font-size: 12px; font-weight: bold;">Forgot Password?</a>
+                </div>
+            </div>
+        `,
         confirmButtonColor: '#d4af37',
         confirmButtonText: 'Login to Dashboard',
         allowOutsideClick: false,
         showCancelButton: true,
         cancelButtonText: 'Return Home',
-        // This ensures the popup never exceeds the screen width on tiny phones
         didOpen: () => {
             const popup = Swal.getPopup();
-            popup.style.maxWidth = '95vw';
+            if (popup) popup.style.maxWidth = '95vw';
         },
         preConfirm: () => {
-            const email = document.getElementById('sw-email').value;
-            const password = document.getElementById('sw-pass').value;
+            const email = document.getElementById('sw-email')?.value;
+            const password = document.getElementById('sw-pass')?.value;
             if (!email || !password) {
                 Swal.showValidationMessage('Required fields missing');
                 return null;
@@ -79,71 +77,80 @@ async function handleScanAuth(rid) {
     });
 
     if (form && form.email) {
-        const { data: user, error } = await supabase
-            .from('elite-users')
-            .select('*')
-            .eq('email', form.email.toLowerCase())
-            .eq('password', form.password)
-            .single();
+        try {
+            const res = await fetch(`${API_AUTH_BASE}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: form.email,
+                    password: form.password,
+                    signature: 'starelite'
+                })
+            });
 
-        if (error || !user) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Login Failed',
-                text: 'Invalid email or password.',
-                background: '#0f0f10',
-                color: '#fff'
-            }).then(() => handleScanAuth(rid));
-        } else {
-            localStorage.setItem(SESSION_KEY, JSON.stringify({
-                loggedIn: true,
-                userId: user.id,
-                userName: user.fullname
-            }));
-            window.location.reload();
+            const result = await res.json();
+
+            if (!res.ok || !result.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Failed',
+                    text: result.error || 'Invalid email or password.',
+                    background: '#0f0f10',
+                    color: '#fff'
+                }).then(() => handleScanAuth(rid));
+            } else {
+                const userObj = result.user || result;
+                localStorage.setItem(SESSION_KEY, JSON.stringify({
+                    loggedIn: true,
+                    userId: userObj.id || userObj.userId,
+                    userName: userObj.fullname || userObj.name,
+                    token: result.token
+                }));
+                window.location.reload();
+            }
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Network connection failed', background: '#0f0f10', color: '#fff' });
         }
     } else {
-        // Only redirect if they explicitly click 'Return Home'
         window.location.href = '../index.html';
     }
 }
 
 async function verifyAndShowScanCard(cardNumber, userUuid) {
     if (!cardNumber || !userUuid) return;
-    const cleanSearchCard = cardNumber.toString().replace(/\s/g, '');
+    try {
+        const res = await fetch(`${API_DASH_BASE}/card/${userUuid}/${encodeURIComponent(cardNumber)}`);
+        const result = await res.json();
 
-    const { data: cards } = await supabase.from('memberships').select('*').eq('user_id', userUuid);
-    if (!cards) return;
-
-    const matchedCard = cards.find(c => c.card_number.toString().replace(/\s/g, '') === cleanSearchCard);
-
-    if (!matchedCard) {
-        Swal.fire({ icon: 'warning', title: 'Unauthorized', text: 'Card not found in your account.', background: '#0f0f10', color: '#fff' });
-        return;
+        if (!result.success) {
+            Swal.fire({ icon: 'warning', title: 'Unauthorized', text: result.error || 'Card not found in your account.', background: '#0f0f10', color: '#fff' });
+            return;
+        }
+        viewCardDetails(result.card);
+    } catch (err) {
+        console.error('Card verification error:', err);
     }
-    viewCardDetails(matchedCard.card_number);
 }
 
 async function initDashboard(userId) {
-    const { data: user } = await supabase.from('elite-users').select('*').eq('id', userId).single();
-    if (user) {
-        if (document.getElementById('userName')) document.getElementById('userName').innerText = `Hello, ${user.fullname.split(' ')[0]}`;
-        if (document.getElementById('userCountry')) document.getElementById('userCountry').innerText = user.country ? `📍 ${user.country}` : '';
-        if (document.getElementById('accountBalance')) document.getElementById('accountBalance').innerText = `$${user.account_balance || '0.00'}`;
+    try {
+        const res = await fetch(`${API_DASH_BASE}/user/${userId}`);
+        const result = await res.json();
+
+        if (result.success) {
+            const { user, counts } = result;
+            if (document.getElementById('userName')) document.getElementById('userName').innerText = `Hello, ${(user.fullname || user.email || 'User').split(' ')[0]}`;
+            if (document.getElementById('userCountry')) document.getElementById('userCountry').innerText = user.country ? `📍 ${user.country}` : '';
+            if (document.getElementById('accountBalance')) document.getElementById('accountBalance').innerText = `$${user.account_balance || '0.00'}`;
+
+            if (document.getElementById('countBookings')) document.getElementById('countBookings').innerText = counts?.bookings || 0;
+            if (document.getElementById('countMeetups')) document.getElementById('countMeetups').innerText = counts?.meetups || 0;
+            if (document.getElementById('countSupport')) document.getElementById('countSupport').innerText = `$${counts?.support || '0'}`;
+        }
+    } catch (err) {
+        console.error('Failed to initialize dashboard metrics:', err);
     }
 
-    const [b, m, s] = await Promise.all([
-        supabase.from('bookings').select('*', { count: 'exact' }).eq('user_id', userId),
-        supabase.from('meet_greets').select('*', { count: 'exact' }).eq('user_id', userId),
-        supabase.from('celebrity_support').select('amount').eq('user_id', userId)
-    ]);
-
-    if (document.getElementById('countBookings')) document.getElementById('countBookings').innerText = b.count || 0;
-    if (document.getElementById('countMeetups')) document.getElementById('countMeetups').innerText = m.count || 0;
-    if (document.getElementById('countSupport')) {
-        const total = s.data?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0;
-        document.getElementById('countSupport').innerText = `$${total}`;
-    }
     loadTable('bookings');
 }
 
@@ -157,34 +164,61 @@ function setupTabs() {
     };
     document.querySelectorAll('.nav-item, .m-nav-item').forEach(btn => btn.onclick = triggerTab);
 
-    const logout = () => { localStorage.removeItem(SESSION_KEY); window.location.href = '../index.html'; };
-    if (document.getElementById('logoutBtn')) document.getElementById('logoutBtn').onclick = logout;
-    if (document.getElementById('logoutBtnMobile')) document.getElementById('logoutBtnMobile').onclick = logout;
+    const logout = () => {
+        localStorage.removeItem(SESSION_KEY);
+        window.location.href = '../index.html';
+    };
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutBtnMobile = document.getElementById('logoutBtnMobile');
+    if (logoutBtn) logoutBtn.onclick = logout;
+    if (logoutBtnMobile) logoutBtnMobile.onclick = logout;
 
     const editProf = async () => {
-        const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-        const { data: user } = await supabase.from('elite-users').select('fullname, country').eq('id', session.userId).single();
-        const { value: form } = await Swal.fire({
-            title: 'Edit Profile', background: '#0f0f10', color: '#fff',
-            html: `<input id="sw-name" class="swal2-input" value="${user.fullname}"><input id="sw-country" class="swal2-input" value="${user.country || ''}">`,
-            confirmButtonColor: '#d4af37', showCancelButton: true,
-            preConfirm: () => ({ fullname: document.getElementById('sw-name').value, country: document.getElementById('sw-country').value })
-        });
-        if (form) {
-            await supabase.from('elite-users').update(form).eq('id', session.userId);
-            window.location.reload();
+        const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
+        const activeUserId = session.userId || session.id;
+        if (!activeUserId) return;
+
+        try {
+            const res = await fetch(`${API_DASH_BASE}/user/${activeUserId}`);
+            const result = await res.json();
+            const user = result.success ? result.user : { fullname: '', country: '' };
+
+            const { value: form } = await Swal.fire({
+                title: 'Edit Profile',
+                background: '#0f0f10',
+                color: '#fff',
+                html: `<input id="sw-name" class="swal2-input" value="${user.fullname || ''}"><input id="sw-country" class="swal2-input" value="${user.country || ''}">`,
+                confirmButtonColor: '#d4af37',
+                showCancelButton: true,
+                preConfirm: () => ({ fullname: document.getElementById('sw-name').value, country: document.getElementById('sw-country').value })
+            });
+
+            if (form) {
+                await fetch(`${API_DASH_BASE}/user/${activeUserId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(form)
+                });
+                window.location.reload();
+            }
+        } catch (err) {
+            console.error("Profile edit error:", err);
         }
     };
-    if (document.getElementById('editProfileBtn')) document.getElementById('editProfileBtn').onclick = editProf;
-    if (document.getElementById('editProfileBtnMobile')) document.getElementById('editProfileBtnMobile').onclick = editProf;
+
+    const editBtn = document.getElementById('editProfileBtn');
+    const editBtnMobile = document.getElementById('editProfileBtnMobile');
+    if (editBtn) editBtn.onclick = editProf;
+    if (editBtnMobile) editBtnMobile.onclick = editProf;
 }
 
 async function loadTable(tableName) {
-    const session = JSON.parse(localStorage.getItem(SESSION_KEY));
-    if (!session) return;
-    const container = document.getElementById('tableResponse');
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
+    const activeUserId = session.userId || session.id;
+    if (!activeUserId) return;
 
-    // --- NEW LOGIC TO UPDATE THE HEADER ---
+    const container = document.getElementById('tableResponse');
     const titles = {
         bookings: 'Event Bookings',
         meet_greets: 'Meet & Greets',
@@ -194,47 +228,61 @@ async function loadTable(tableName) {
 
     const titleEl = document.getElementById('currentTabTitle');
     if (titleEl) {
-        // This line actually changes the text from "Event Bookings" to the new tab name
         titleEl.innerText = titles[tableName] || 'Record History';
     }
-    // ---------------------------------------
 
-    const { data } = await supabase
-        .from(tableName)
-        .select('*')
-        .eq('user_id', session.userId)
-        .order('created_at', { ascending: false });
+    try {
+        const res = await fetch(`${API_DASH_BASE}/table/${activeUserId}/${tableName}`);
+        const result = await res.json();
+        const data = result.success ? result.data : [];
 
-    if (!data || data.length === 0) {
-        container.innerHTML = `<div style="padding:40px; text-align:center; color:#555">No records found in ${titles[tableName]}.</div>`;
-        return;
-    }
+        if (!container) return;
 
-    // Build the table HTML (Keep your existing logic here)
-    let html = `<table><thead><tr><th>Star</th><th>Type</th><th>Date</th><th>Status</th></tr></thead><tbody>`;
-    data.forEach(item => {
-        const isApp = item.status === 'Approved';
-        let statusHtml = `<span style="color:${isApp ? '#2ecc71' : '#f39c12'}">●</span> ${item.status || 'Pending'}`;
-
-        if (tableName === 'memberships' && isApp) {
-            statusHtml = `<span style="color:#2ecc71">●</span> <a href="#" style="color:#d4af37; text-decoration:underline;" onclick="viewCardDetails('${item.card_number}')">Approved / Open</a>`;
+        if (!data || data.length === 0) {
+            container.innerHTML = `<div style="padding:40px; text-align:center; color:#555">No records found in ${titles[tableName]}.</div>`;
+            return;
         }
 
-        html += `<tr>
-            <td><strong>${item.celeb_name}</strong></td>
-            <td>${item.event_type || item.tier_selected || '$' + (item.amount || '0')}</td>
-            <td>${new Date(item.created_at).toLocaleDateString()}</td>
-            <td>${statusHtml}</td>
-        </tr>`;
-    });
-    container.innerHTML = html + `</tbody></table>`;
+        let html = `<table><thead><tr><th>Star</th><th>Type</th><th>Date</th><th>Status</th></tr></thead><tbody>`;
+        data.forEach(item => {
+            const isApp = item.status === 'Approved';
+            let statusHtml = `<span style="color:${isApp ? '#2ecc71' : '#f39c12'}">●</span> ${item.status || 'Pending'}`;
+
+            if (tableName === 'memberships' && isApp) {
+                statusHtml = `<span style="color:#2ecc71">●</span> <a href="#" style="color:#d4af37; text-decoration:underline;" onclick="fetchCardDetailsByNumber('${item.card_number}')">Approved / Open</a>`;
+            }
+
+            html += `<tr>
+                <td><strong>${item.celeb_name || 'N/A'}</strong></td>
+                <td>${item.event_type || item.tier_selected || '$' + (item.amount || '0')}</td>
+                <td>${item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A'}</td>
+                <td>${statusHtml}</td>
+            </tr>`;
+        });
+        container.innerHTML = html + `</tbody></table>`;
+    } catch (err) {
+        if (container) {
+            container.innerHTML = `<div style="padding:40px; text-align:center; color:#e74c3c">Failed to load records.</div>`;
+        }
+    }
 }
-/**
- * RESTORED: Card View with Admin Comments
- */
-window.viewCardDetails = async (cardNumber) => {
-    const { data: card } = await supabase.from('memberships').select('*').eq('card_number', cardNumber).single();
-    if (!card) return;
+
+window.fetchCardDetailsByNumber = async (cardNumber) => {
+    const session = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
+    const activeUserId = session.userId || session.id;
+    if (!activeUserId) return;
+    try {
+        const res = await fetch(`${API_DASH_BASE}/card/${activeUserId}/${encodeURIComponent(cardNumber)}`);
+        const result = await res.json();
+        if (result.success) {
+            viewCardDetails(result.card);
+        }
+    } catch (err) {
+        console.error('Error fetching card details:', err);
+    }
+};
+
+window.viewCardDetails = (card) => {
     const isVal = card.card_status === 'true' || card.card_status === true;
 
     Swal.fire({

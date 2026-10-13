@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Star-Elite — Celebrity Meet & Greet</title>
+    <title>Star Elite — Celebrity Meet & Greet</title>
     <meta name="description"
         content="Book celebrity meet & greets, buy tickets, join fan clubs. Premium talent booking and fan experiences." />
     <link rel="stylesheet" href="style.css">
@@ -16,7 +16,9 @@
     <link rel="stylesheet" href="auth.css">
     <link rel="stylesheet" href="testimonials.css">
     <link rel="stylesheet" href="wiki.css">
+    <link rel="stylesheet" href="css/live-chat.css">
 
+    <link rel="icon" type="image/x-icon" href="ss.png">
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.getElementById('menuToggle');
@@ -53,7 +55,7 @@
         <header>
             <div class="brand">
                 <div class="logo">CN</div>
-                <div><strong>Star-Elite</strong>
+                <div><strong>Star Elite</strong>
                     <div style="font-size:12px;color:var(--muted)">Talent & Meet‑Greet</div>
                 </div>
             </div>
@@ -176,7 +178,7 @@
 
         <section id="cards" class="section">
             <div class="section-header">
-                <h2>Membership authorised permit code</h2>
+                <h2>Fan Membership Cards</h2>
                 <p class="small">Join a fan club to get priority access, exclusive content, and surprise rewards.</p>
             </div>
 
@@ -187,8 +189,9 @@
                         <div class="card-chip"></div>
                         <div class="card-title">Silver</div>
                         <ul class="benefits-list">
-                            <li>Provides access to the fan club dashboard and exclusive digital content.</li>
-
+                            <li>Early ticket access</li>
+                            <li>Monthly newsletter</li>
+                            <li>Exclusive wallpapers</li>
                         </ul>
                         <button class="btn ghost-white">Get Silver</button>
                     </div>
@@ -201,9 +204,8 @@
                         <div class="card-title">Gold</div>
                         <ul class="benefits-list">
                             <li>All Silver benefits</li>
-                            <li>Personalised autographed photograph.</li>
-                            <li>Participation in a private Zoom chat session.</li>
-                            <li>A virtual meet-and-greet opportunity.</li>
+                            <li>Priority meet slots</li>
+                            <li>Members livestreams</li>
                         </ul>
                         <button class="btn gold-btn">Get Gold</button>
                     </div>
@@ -213,14 +215,13 @@
                     <div class="card-glass"></div>
                     <div class="card-content">
                         <div class="card-chip"></div>
-                        <div class="card-title">Diamond</div>
+                        <div class="card-title">VIP</div>
                         <ul class="benefits-list">
                             <li>All Gold benefits</li>
-                            <li>A private one-on-one discussion session.</li>
-                            <li>A personal in-person meet-and-greet.</li>
-                            <li>Access to a dedicated personal concierge for VIP experiences.</li>
+                            <li>Backstage access</li>
+                            <li>Exclusive meet vouchers</li>
                         </ul>
-                        <button class="btn vip-btn">Get Diamond</button>
+                        <button class="btn vip-btn">Get VIP</button>
                     </div>
                 </div>
             </div>
@@ -248,7 +249,7 @@
             <div class="testimonial-grid">
                 <div class="review-card">
                     <div class="rating">★★★★★</div>
-                    <p class="quote">"Star-Elite made our brand gala effortless. The talent management was exceptional,
+                    <p class="quote">"Star Elite made our brand gala effortless. The talent management was exceptional,
                         handling logistics that other agencies couldn't touch."</p>
                     <div class="reviewer">
                         <div class="rev-info">
@@ -331,25 +332,73 @@
                     </div>
                 </div>
             </div>
-            <div style="margin-top:18px;text-align:center;color:var(--muted)">&copy; 2026 Star-Elite Talent. All rights
+            <div style="margin-top:18px;text-align:center;color:var(--muted)">&copy; 2026 Star Elite Talent. All rights
                 reserved.</div>
         </footer>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="config.js"></script>
-    <script type="module" src="auth.js"></script>
-    <script type="module" src="./celeb.js"></script>
-    <script type="module" src="./event.js"></script>
-    <script type="module" src="./news.js"></script>
-    <script type="module" src="./cards.js"></script>
-    <script type="module" src="./wiki.js"></script>
+    <script src="js/index.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/cards.js"></script>
+    <script type="module" src="js/website.js"></script>
+    <script type="module" src="js/live-chat.js"></script>
 
-    <script type="module" src="./website.js"></script>
-    <script type="module">
-        // Call the check immediately
-        window.checkSiteVisibility();
-    </script>
-    <script src="//code.jivosite.com/widget/f5FQlPdVJh" async></script>
+    <!-- LiveChat Scoped UI Panel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="css/live-chat.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- LiveChat Scoped UI Panel -->
+    <div class="lc-widget-launcher-wrapper">
+        <!-- Popup Toaster Notification -->
+        <div id="chat-toaster" class="lc-widget-toaster-popup">
+            <span>Need help? Chat with us!</span>
+            <button type="button" id="close-chat-toaster" class="lc-widget-toaster-close-btn"
+                title="Dismiss">&times;</button>
+        </div>
+
+        <!-- Floating Trigger Bubble -->
+        <button type="button" id="live-chat-trigger-bubble" class="lc-widget-bubble-launcher" title="Chat with support">
+            <i class="fa fa-comments"></i>
+        </button>
+    </div>
+
+    <!-- Slide-in Chat UI Panel -->
+    <div class="lc-widget-drawer-overlay" id="chatDrawerOverlay"></div>
+    <div class="lc-widget-drawer" id="chatDrawer">
+        <div class="lc-widget-drawer-header">
+            <div class="lc-widget-title">
+                <i data-lucide="message-square"></i>
+                <span>Support Channel</span>
+            </div>
+            <div class="lc-widget-header-actions" style="display: flex; align-items: center; gap: 8px;">
+                <!-- Logout Button (Only visible when user is logged in) -->
+                <button type="button" id="chatLogoutBtn" class="lc-widget-action-btn" title="Log Out"
+                    style="display: none; background: transparent; border: none; color: #ef4444; cursor: pointer;">
+                    <i data-lucide="log-out"></i>
+                </button>
+                <button type="button" id="closeChatDrawerBtn" class="lc-widget-action-btn" title="Close Chat">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="lc-widget-feed-container" id="chat-message-feed">
+            <!-- Dynamically Hydrated by live-chat.js -->
+        </div>
+
+        <div class="lc-widget-drawer-footer">
+            <input type="file" id="chat-image-attachment-input" style="display: none;" accept="image/*">
+            <button type="button" id="chat-attachment-trigger-btn" class="lc-widget-tool-btn"
+                title="Attach Document/Image">
+                <i data-lucide="paperclip"></i>
+            </button>
+            <textarea id="chat-terminal-text-field" class="lc-widget-input-field" placeholder="Type a message..."
+                rows="1"></textarea>
+            <button type="button" id="chat-send-message-btn" class="lc-widget-send-btn">
+                <i data-lucide="send"></i>
+            </button>
+        </div>
+    </div>
 
 </body>
 

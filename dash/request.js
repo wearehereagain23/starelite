@@ -1,184 +1,365 @@
 // /dash/request.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+const API_REQUEST_BASE = 'https://celeb-address.vercel.app/api/requests';
+const FRONTEND_SIGNATURE = 'starelite'; // 🔑 Signature for multi-platform query filtering
 
-const supabase = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+const swalTheme = {
+    background: '#0f0f10',
+    color: '#fff',
+    confirmButtonColor: '#d4af37',
+    showCloseButton: true,
+    customClass: {
+        popup: 'swal-advanced-popup',
+        confirmButton: 'swal-confirm-btn',
+        closeButton: 'swal-close-btn'
+    },
+    buttonsStyling: false
+};
 
 export const initRequestHandlers = (celebName) => {
-    // Get the active user from localStorage (saved during login/signup)
-    const session = JSON.parse(localStorage.getItem('Star-Elite_user_active'));
-    const userUUID = session?.id; // Matches the 'id' column in your public.users table
+    const session = JSON.parse(localStorage.getItem('star-elite_user_active'));
+    const userUUID = session?.id || session?.userId;
 
-    // Helper: Check if monetization services are enabled
-
-
-
-    const isServiceAvailable = (onUpdate) => {
-
-        supabase
-            .from('full_version')
-            .select('paid')
-            .eq('id', 2)
-            .single()
-            .then(({ data }) => {
-                if (data) onUpdate(data.paid);
-            });
-
-        // Real-time Subscription
-        return supabase
-            .channel('full-version-changes')
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'full_version',
-                    filter: 'id=eq.2'
-                },
-                (payload) => {
-                    onUpdate(payload.new.paid);
-                }
-            )
-            .subscribe();
+    const isServiceAvailable = async () => {
+        try {
+            const res = await fetch(`${API_REQUEST_BASE}/status`);
+            const data = await res.json();
+            return data.success && data.paid;
+        } catch (err) {
+            return false;
+        }
     };
-
 
     // --- 1. BOOK FOR AN EVENT ---
-    document.querySelector('.booking .btn-action').onclick = async () => {
-        const { value: formValues } = await Swal.fire({
-            title: 'Book for an Event',
-            background: '#0f0f10', color: '#fff', confirmButtonColor: '#d4af37',
-            html: `
-                <div class="swal-form">
-                    <label>Event Type</label>
-                    <select id="event-type" class="swal2-input">
-                        <option value="Private Appearance">Private Appearance</option>
-                        <option value="Live Performance">Live Performance</option>
-                    </select>
-                    <label>Event Date</label>
-                    <input type="date" id="event-date" class="swal2-input">
-                    <textarea id="event-desc" class="swal2-textarea" placeholder="Event details & description..."></textarea>
-                </div>`,
-            preConfirm: () => {
-                const type = document.getElementById('event-type').value;
-                const date = document.getElementById('event-date').value;
-                const desc = document.getElementById('event-desc').value;
-                if (!date || !desc) return Swal.showValidationMessage('Please fill all fields');
-                return { type, date, desc };
-            }
-        });
+    const bookingBtn = document.querySelector('.booking .btn-action');
+    if (bookingBtn) {
+        bookingBtn.onclick = () => {
+            Swal.fire({
+                ...swalTheme,
+                title: 'Book for an Event',
+                confirmButtonText: 'Submit Request',
+                html: `
+                    <div class="swal-form" style="text-align: left; display: flex; flex-direction: column; gap: 12px; width: 100%; box-sizing: border-box;">
+                        <div>
+                            <label style="font-size:12px; color:#9aa0a6; display:block; margin-bottom:5px;">Event Type</label>
+                            <select id="event-type" class="swal2-input" style="width:100%; background:#1a1a1c; color:#fff; border:1px solid #333; border-radius:8px; height:42px; padding:0 10px; margin:0; box-sizing:border-box;">
+                                <option value="Private Appearance">Private Appearance</option>
+                                <option value="Live Performance">Live Performance</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#9aa0a6; display:block; margin-bottom:5px;">Event Date</label>
+                            <input type="date" id="event-date" class="swal2-input" style="width:100%; background:#1a1a1c; color:#fff; border:1px solid #333; border-radius:8px; height:42px; padding:0 10px; margin:0; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#9aa0a6; display:block; margin-bottom:5px;">Event Details</label>
+                            <textarea id="event-desc" placeholder="Event details & description..." style="width:100%; height:100px; background:#1a1a1c; color:#fff; border:1px solid #333; border-radius:8px; padding:10px; box-sizing:border-box; font-family:inherit; resize:vertical;"></textarea>
+                        </div>
+                    </div>
+                    <p id="swalError" style="color: #ff4d4d; font-size: 13px; margin-top: 10px; display: none; text-align: left;"></p>
+                `,
+                didOpen: () => {
+                    const popup = Swal.getPopup();
+                    if (popup) popup.style.maxWidth = '95vw';
 
-        if (formValues) {
-            const { error } = await supabase.from('bookings').insert([{
-                user_id: userUUID,
-                celeb_name: celebName,
-                event_type: formValues.type,
-                event_date: formValues.date,
-                description: formValues.desc
-            }]);
+                    Swal.getConfirmButton().onclick = async () => {
+                        const type = document.getElementById('event-type').value;
+                        const date = document.getElementById('event-date').value;
+                        const desc = document.getElementById('event-desc').value.trim();
+                        const errorEl = document.getElementById('swalError');
 
-            if (error) return Swal.fire('Error', error.message, 'error');
-            Swal.fire('Success', 'Your request was sent successfully! Wait for our management feedback via your registered email or reach out via livechat.', 'success');
-        }
-    };
+                        if (!date || !desc) {
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = 'Please fill all required fields.';
+                            return;
+                        }
+
+                        errorEl.style.display = 'none';
+                        Swal.showLoading();
+
+                        try {
+                            const res = await fetch(`${API_REQUEST_BASE}/submit`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: userUUID, celebName, type: 'booking', payload: { type, date, desc } })
+                            });
+                            const result = await res.json();
+                            Swal.hideLoading();
+
+                            if (!result.success) {
+                                errorEl.style.display = 'block';
+                                errorEl.textContent = result.error || 'Failed to submit request.';
+                            } else {
+                                Swal.fire({
+                                    ...swalTheme,
+                                    icon: 'success',
+                                    title: 'Request Sent!',
+                                    text: 'Your request was sent successfully! Wait for management feedback via your email or livechat.',
+                                    confirmButtonText: 'Done'
+                                });
+                            }
+                        } catch (err) {
+                            Swal.hideLoading();
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = 'Network connection failed.';
+                        }
+                    };
+                }
+            });
+        };
+    }
 
     // --- 2. MEET & GREET ---
-    document.querySelector('.meet .btn-action').onclick = async () => {
-        const { value: formValues } = await Swal.fire({
-            title: 'Meet & Greet Request',
-            background: '#0f0f10', color: '#fff', confirmButtonColor: '#d4af37',
-            html: `
-                <div class="swal-form">
-                    <label>Session Type</label>
-                    <select id="meet-type" class="swal2-input">
-                        <option value="Backstage">Backstage Pass</option>
-                        <option value="One-on-One">One-on-One</option>
-                    </select>
-                    <label>Preferred Date</label>
-                    <input type="date" id="meet-date" class="swal2-input">
-                    <textarea id="meet-desc" class="swal2-textarea" placeholder="Why do you want to meet?"></textarea>
-                </div>`,
-            preConfirm: () => {
-                const type = document.getElementById('meet-type').value;
-                const date = document.getElementById('meet-date').value;
-                const desc = document.getElementById('meet-desc').value;
-                if (!date || !desc) return Swal.showValidationMessage('Required fields missing');
-                return { type, date, desc };
-            }
-        });
+    const meetBtn = document.querySelector('.meet .btn-action');
+    if (meetBtn) {
+        meetBtn.onclick = () => {
+            Swal.fire({
+                ...swalTheme,
+                title: 'Meet & Greet Request',
+                confirmButtonText: 'Submit Request',
+                html: `
+                    <div class="swal-form" style="text-align: left; display: flex; flex-direction: column; gap: 12px; width: 100%; box-sizing: border-box;">
+                        <div>
+                            <label style="font-size:12px; color:#9aa0a6; display:block; margin-bottom:5px;">Session Type</label>
+                            <select id="meet-type" class="swal2-input" style="width:100%; background:#1a1a1c; color:#fff; border:1px solid #333; border-radius:8px; height:42px; padding:0 10px; margin:0; box-sizing:border-box;">
+                                <option value="Backstage">Backstage Pass</option>
+                                <option value="One-on-One">One-on-One</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#9aa0a6; display:block; margin-bottom:5px;">Preferred Date</label>
+                            <input type="date" id="meet-date" class="swal2-input" style="width:100%; background:#1a1a1c; color:#fff; border:1px solid #333; border-radius:8px; height:42px; padding:0 10px; margin:0; box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:#9aa0a6; display:block; margin-bottom:5px;">Reason for Request</label>
+                            <textarea id="meet-desc" placeholder="Why do you want to meet?" style="width:100%; height:100px; background:#1a1a1c; color:#fff; border:1px solid #333; border-radius:8px; padding:10px; box-sizing:border-box; font-family:inherit; resize:vertical;"></textarea>
+                        </div>
+                    </div>
+                    <p id="swalError" style="color: #ff4d4d; font-size: 13px; margin-top: 10px; display: none; text-align: left;"></p>
+                `,
+                didOpen: () => {
+                    const popup = Swal.getPopup();
+                    if (popup) popup.style.maxWidth = '95vw';
 
-        if (formValues) {
-            const { error } = await supabase.from('meet_greets').insert([{
-                user_id: userUUID,
-                celeb_name: celebName,
-                session_type: formValues.type,
-                session_date: formValues.date,
-                reason: formValues.desc
-            }]);
-            if (error) return Swal.fire('Error', error.message, 'error');
-            Swal.fire('Success', 'Meet & Greet request sent successfully! We will contact you shortly.', 'success');
-        }
-    };
+                    Swal.getConfirmButton().onclick = async () => {
+                        const type = document.getElementById('meet-type').value;
+                        const date = document.getElementById('meet-date').value;
+                        const desc = document.getElementById('meet-desc').value.trim();
+                        const errorEl = document.getElementById('swalError');
+
+                        if (!date || !desc) {
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = 'Please fill all required fields.';
+                            return;
+                        }
+
+                        errorEl.style.display = 'none';
+                        Swal.showLoading();
+
+                        try {
+                            const res = await fetch(`${API_REQUEST_BASE}/submit`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: userUUID, celebName, type: 'meet', payload: { type, date, desc } })
+                            });
+                            const result = await res.json();
+                            Swal.hideLoading();
+
+                            if (!result.success) {
+                                errorEl.style.display = 'block';
+                                errorEl.textContent = result.error || 'Failed to submit request.';
+                            } else {
+                                Swal.fire({
+                                    ...swalTheme,
+                                    icon: 'success',
+                                    title: 'Submitted!',
+                                    text: 'Meet & Greet request sent successfully! We will contact you shortly.',
+                                    confirmButtonText: 'Done'
+                                });
+                            }
+                        } catch (err) {
+                            Swal.hideLoading();
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = 'Network connection failed.';
+                        }
+                    };
+                }
+            });
+        };
+    }
 
     // --- 3. FAN MEMBERSHIP ---
-    document.querySelector('.membership .btn-action').onclick = async () => {
-        if (!(await isServiceAvailable())) {
-            return Swal.fire('Unavailable', 'This service is not available at the moment, please try again later.', 'error');
-        }
+    const membershipBtn = document.querySelector('.membership .btn-action');
+    if (membershipBtn) {
+        membershipBtn.onclick = async () => {
+            if (!(await isServiceAvailable())) {
+                return Swal.fire({
+                    ...swalTheme,
+                    icon: 'error',
+                    title: 'Unavailable',
+                    text: 'This service is not available at the moment, please try again later.'
+                });
+            }
 
-        const { data: cardData } = await supabase.from('cards').select('*').maybeSingle();
-        const silverTxt = cardData?.silver || "Official fan badge and priority comments.";
-        const goldTxt = cardData?.gold || "Behind-the-scenes content and early ticket access.";
-        const platTxt = cardData?.platinum || "Virtual Q&A sessions and signed digital merchandise.";
+            let cardData = null;
+            try {
+                // 🔑 Pass signature query param to cards endpoint
+                const res = await fetch(`${API_REQUEST_BASE}/cards?signature=${FRONTEND_SIGNATURE}`);
+                const data = await res.json();
+                if (data.success) cardData = data.cards;
+            } catch (err) {
+                console.error('Error fetching card tiers');
+            }
 
-        const { value: tier } = await Swal.fire({
-            title: 'Select Membership Tier',
-            background: '#0f0f10', color: '#fff', confirmButtonColor: '#d4af37',
-            html: `
-                <div class="tier-selection">
-                    <label class="tier-card"><input type="radio" name="tier" value="Silver" checked> 
-                        <div class="tier-info"><strong>Silver</strong><p>${silverTxt}</p></div>
-                    </label>
-                    <label class="tier-card"><input type="radio" name="tier" value="Gold"> 
-                        <div class="tier-info"><strong>Gold</strong><p>${goldTxt}</p></div>
-                    </label>
-                    <label class="tier-card"><input type="radio" name="tier" value="Platinum"> 
-                        <div class="tier-info"><strong>Platinum</strong><p>${platTxt}</p></div>
-                    </label>
-                </div>`,
-            preConfirm: () => document.querySelector('input[name="tier"]:checked').value
-        });
+            const silverTxt = cardData?.silver || 'Official fan badge and priority comments.';
+            const goldTxt = cardData?.gold || 'Behind-the-scenes content and early ticket access.';
+            const platTxt = cardData?.platinum || 'Virtual Q&A sessions and signed digital merchandise.';
 
-        if (tier) {
-            const { error } = await supabase.from('memberships').insert([{
-                user_id: userUUID, celeb_name: celebName, tier_selected: tier
-            }]);
-            if (error) return Swal.fire('Error', error.message, 'error');
-            Swal.fire('Submitted', `Your ${tier} membership request has been logged successfully.`, 'success');
-        }
-    };
+            Swal.fire({
+                ...swalTheme,
+                title: 'Select Membership Tier',
+                confirmButtonText: 'Join Club',
+                html: `
+                    <div class="tier-selection" style="text-align: left; display: flex; flex-direction: column; gap: 12px; width:100%; box-sizing:border-box;">
+                        <label style="display:flex; gap:12px; align-items:flex-start; padding:12px; background:#1a1a1c; border:1px solid #333; border-radius:8px; cursor:pointer;">
+                            <input type="radio" name="tier" value="Silver" checked style="margin-top:3px;"> 
+                            <div><strong style="color:#fff;">Silver</strong><p style="font-size:12px; color:#888; margin:4px 0 0 0;">${silverTxt}</p></div>
+                        </label>
+                        <label style="display:flex; gap:12px; align-items:flex-start; padding:12px; background:#1a1a1c; border:1px solid #333; border-radius:8px; cursor:pointer;">
+                            <input type="radio" name="tier" value="Gold" style="margin-top:3px;"> 
+                            <div><strong style="color:#d4af37;">Gold</strong><p style="font-size:12px; color:#888; margin:4px 0 0 0;">${goldTxt}</p></div>
+                        </label>
+                        <label style="display:flex; gap:12px; align-items:flex-start; padding:12px; background:#1a1a1c; border:1px solid #333; border-radius:8px; cursor:pointer;">
+                            <input type="radio" name="tier" value="Platinum" style="margin-top:3px;"> 
+                            <div><strong style="color:#e5e4e2;">Platinum</strong><p style="font-size:12px; color:#888; margin:4px 0 0 0;">${platTxt}</p></div>
+                        </label>
+                    </div>
+                    <p id="swalError" style="color: #ff4d4d; font-size: 13px; margin-top: 10px; display: none; text-align: left;"></p>
+                `,
+                didOpen: () => {
+                    const popup = Swal.getPopup();
+                    if (popup) popup.style.maxWidth = '95vw';
+
+                    Swal.getConfirmButton().onclick = async () => {
+                        const tier = document.querySelector('input[name="tier"]:checked')?.value;
+                        const errorEl = document.getElementById('swalError');
+
+                        if (!tier) {
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = 'Please select a tier.';
+                            return;
+                        }
+
+                        errorEl.style.display = 'none';
+                        Swal.showLoading();
+
+                        try {
+                            const res = await fetch(`${API_REQUEST_BASE}/submit`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: userUUID, celebName, type: 'membership', payload: { tier } })
+                            });
+                            const result = await res.json();
+                            Swal.hideLoading();
+
+                            if (!result.success) {
+                                errorEl.style.display = 'block';
+                                errorEl.textContent = result.error || 'Failed to submit membership request.';
+                            } else {
+                                Swal.fire({
+                                    ...swalTheme,
+                                    icon: 'success',
+                                    title: 'Submitted!',
+                                    text: `Your ${tier} membership request has been logged successfully.`,
+                                    confirmButtonText: 'Done'
+                                });
+                            }
+                        } catch (err) {
+                            Swal.hideLoading();
+                            errorEl.style.display = 'block';
+                            errorEl.textContent = 'Network connection failed.';
+                        }
+                    };
+                }
+            });
+        };
+    }
 
     // --- 4. SUPPORT CELEBRITY ---
-    document.querySelector('.support .btn-action').onclick = async () => {
-        if (!(await isServiceAvailable())) {
-            return Swal.fire('Unavailable', 'This service is not available at the moment, please try again later.', 'error');
-        }
+    const supportBtn = document.querySelector('.support .btn-action');
+    if (supportBtn) {
+        supportBtn.onclick = async () => {
+            if (!(await isServiceAvailable())) {
+                return Swal.fire({
+                    ...swalTheme,
+                    icon: 'error',
+                    title: 'Unavailable',
+                    text: 'This service is not available at the moment, please try again later.'
+                });
+            }
 
-        const amount = document.getElementById('supportAmount').value;
-        if (!amount || amount <= 0) return Swal.fire('Warning', 'Please enter a valid amount.', 'warning');
+            const amountInput = document.getElementById('supportAmount');
+            const amount = amountInput ? amountInput.value : 0;
+            if (!amount || amount <= 0) {
+                return Swal.fire({
+                    ...swalTheme,
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: 'Please enter a valid amount.'
+                });
+            }
 
-        const { isConfirmed } = await Swal.fire({
-            title: 'Confirm Support',
-            text: `Send $${amount} to ${celebName}? Preview your request before submitting.`,
-            icon: 'info', background: '#0f0f10', color: '#fff',
-            showCancelButton: true, confirmButtonText: 'Confirm & Send', confirmButtonColor: '#d4af37'
-        });
+            Swal.fire({
+                ...swalTheme,
+                title: 'Confirm Support',
+                text: `Send $${amount} to ${celebName}? Confirm your request before submitting.`,
+                icon: 'info',
+                confirmButtonText: 'Confirm & Send',
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                didOpen: () => {
+                    const popup = Swal.getPopup();
+                    if (popup) popup.style.maxWidth = '95vw';
 
-        if (isConfirmed) {
-            const { error } = await supabase.from('celebrity_support').insert([{
-                user_id: userUUID, celeb_name: celebName, amount: parseFloat(amount)
-            }]);
-            if (error) return Swal.fire('Error', error.message, 'error');
-            Swal.fire('Success', 'Submission successful! An agent will attend to you shortly via email. If delayed, please reach out via livechat.', 'success');
-        }
-    };
+                    Swal.getConfirmButton().onclick = async () => {
+                        Swal.showLoading();
+
+                        try {
+                            const res = await fetch(`${API_REQUEST_BASE}/submit`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ userId: userUUID, celebName, type: 'support', payload: { amount } })
+                            });
+                            const result = await res.json();
+                            Swal.hideLoading();
+
+                            if (!result.success) {
+                                Swal.fire({
+                                    ...swalTheme,
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: result.error || 'Failed to send support.'
+                                });
+                            } else {
+                                Swal.fire({
+                                    ...swalTheme,
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: 'Submission successful! An agent will attend to you shortly via email. If delayed, please reach out via livechat.',
+                                    confirmButtonText: 'Done'
+                                });
+                            }
+                        } catch (err) {
+                            Swal.hideLoading();
+                            Swal.fire({
+                                ...swalTheme,
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Network connection failed.'
+                            });
+                        }
+                    };
+                }
+            });
+        };
+    }
 };

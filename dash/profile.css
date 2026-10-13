@@ -189,6 +189,8 @@ body {
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px 100px;
+    align-items: start;
+    /* Prevents the left column from stretching to match sidebar height */
 }
 
 .bio-card {
@@ -196,6 +198,8 @@ body {
     padding: 40px;
     border-radius: 20px;
     line-height: 1.8;
+    height: fit-content;
+    /* Hugs the text height dynamically */
 }
 
 /* Sidebar & Cards */

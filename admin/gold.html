@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Elite Membership | Star Elite</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Public+Sans:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/gold.css">
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <div class="cards-grid" id="captureArea">
+            <div class="card-face card-front" id="goldFront">
+                <div class="card-overlay"></div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <h2 class="elite-title">GOLD ELITE</h2>
+                        <div class="vip-logo">
+                            <img src="asset/vip.png" class="responsive-logo" alt="VIP">
+                        </div>
+                    </div>
+                    <div class="card-chip">
+                        <img src="asset/chip2.png" class="chip-img" alt="chip">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-number" id="displayCardNum">0000 0000 0000 0000</div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="info-block">
+                            <div class="celeb-badge">OFFICIAL FAN: <b id="displayCeleb">LOADING...</b></div>
+                            <span class="label">MEMBER NAME</span>
+                            <span class="value" id="displayName">LOADING...</span>
+                        </div>
+                        <div class="info-block" style="text-align: right;">
+                            <span class="label">EXPIRING DATE</span>
+                            <span class="value" id="displayExpiry">00 / 0000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-face card-back" id="goldBack">
+                <div class="card-overlay"></div>
+                <div class="card-content back-layout">
+                    <div class="mag-stripe"></div>
+                    <div class="security-area">
+                        <div class="signature-panel-image">
+                            <img src="asset/auth.png" class="sig-bg" alt="Security Pattern">
+                        </div>
+                        <p class="disclaimer">
+                            This card is issued by Star Elite Elite. It remains the property of the issuer and must be
+                            returned upon request. Use is subject to membership terms.
+                        </p>
+                    </div>
+                    <div class="back-footer">
+                        <div class="barcode-white-box">
+                            <img src="asset/barcode.png" class="responsive-barcode" alt="Barcode">
+                            <span class="barcode-number" id="displayBarcode">00000000</span>
+                        </div>
+                        <div class="legal-info">
+                            <span>https://star-elite.web.app</span>
+                            <span class="secure-tag">SECURE GOLD ACCESS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-controls">
+            <h3>Background Texture</h3>
+            <div class="theme-selector">
+                <button class="theme-btn active" onclick="changeGoldBg('./gold1.jpg', this)">Gold 1</button>
+                <button class="theme-btn" onclick="changeGoldBg('./gold2.jpeg', this)">Gold 2</button>
+                <button class="theme-btn" onclick="changeGoldBg('./gold3.webp', this)">Gold 3</button>
+                <button class="theme-btn" onclick="changeGoldBg('./gold4.jpg', this)">Gold 4</button>
+            </div>
+
+            <div class="admin-form">
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label class="label">Card Number</label>
+                        <input type="text" id="inputCardNum" class="admin-input" placeholder="Enter Card Number">
+                    </div>
+                    <div class="input-group">
+                        <label class="label">Expiry Date</label>
+                        <input type="text" id="inputExpiry" class="admin-input" placeholder="MM / YYYY">
+                    </div>
+                    <div class="input-group" style="margin-top: 15px;">
+                        <label class="label">Admin Comment</label>
+                        <textarea id="inputComment" class="admin-input" rows="2" placeholder="Member Notes"></textarea>
+                    </div>
+                </div>
+                <div class="status-control">
+                    <div class="status-info">
+                        <label class="label">Status</label>
+                        <span class="status-desc" id="statusText">Loading...</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="inputStatus" onchange="updateStatusUI(this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="saveBtn" class="theme-btn"
+                style="background: #d4af37; color: #000; width: 100%; margin-top: 20px;" onclick="saveGoldCard()">
+                <i class="fa-solid fa-floppy-disk"></i> Update & Download Spread
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script type="module" src="./js/gold.js"></script>
+
+
+
+</body>
+
+</html>
