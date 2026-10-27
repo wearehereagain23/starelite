@@ -3,6 +3,7 @@ import { initRequestHandlers } from './request.js';
 
 const API_SEARCH_BASE = 'https://celeb-address.vercel.app/api/search';
 const SESSION_KEY = 'star-elite_user_active';
+const FRONTEND_SIGNATURE = 'starelite'; // 🔑 Added workspace signature
 
 document.addEventListener('DOMContentLoaded', async () => {
     const session = JSON.parse(localStorage.getItem(SESSION_KEY));
@@ -93,7 +94,8 @@ async function showModal(mode) {
 
             if (!email || !pass) return Swal.showValidationMessage('Required fields missing');
 
-            let payload = { mode, email, password: pass };
+            // 🔑 Included signature in the authentication payload
+            let payload = { mode, email, password: pass, signature: FRONTEND_SIGNATURE };
 
             if (!isLogin) {
                 const fname = document.getElementById('fname').value.trim();

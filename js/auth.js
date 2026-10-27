@@ -2,7 +2,7 @@
 
 const API_AUTH_BASE = 'https://celeb-address.vercel.app/api/auth';
 const SESSION_KEY = 'star-elite_user_active';
-const FRONTEND_SIGNATURE = 'starelite';
+const FRONTEND_SIGNATURE = 'celemanagement';
 
 const swalTheme = {
     customClass: {
