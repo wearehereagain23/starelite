@@ -48,7 +48,6 @@ window.checkSiteAndAccountStatus = async () => {
 
                     if (!tokenResult.valid) {
                         console.warn("⚠️ [WEBSITE.JS] Token validation failed from server:", tokenResult);
-                        // Do not hard-restrict on dashboard during debugging, just log warning
                         if (!window.location.pathname.includes('/dash/')) {
                             handleRestriction("Your session has expired. Please log in again.");
                             return;
@@ -61,7 +60,8 @@ window.checkSiteAndAccountStatus = async () => {
 
             // Check Database Active Flag safely
             try {
-                const userRes = await fetch(`${API_WEB_BASE}/user-status/${session.userId}`);
+                // 🔑 Added signature query parameter here
+                const userRes = await fetch(`${API_WEB_BASE}/user-status/${session.userId}?signature=${FRONTEND_SIGNATURE}`);
                 const userResult = await userRes.json();
 
                 if (userResult.success && userResult.active === false) {
@@ -89,7 +89,6 @@ function checkInactivityTimeout() {
 
     if (lastActive && (now - lastActive > TIMEOUT_LIMIT)) {
         console.warn("⚠️ [WEBSITE.JS] Inactivity limit reached.");
-        // Suppress hard restriction on dashboard to allow debugging
         if (!window.location.pathname.includes('/dash/')) {
             handleRestriction("Session expired due to inactivity. Please log in again.");
         }
